@@ -18,6 +18,6 @@ public class UserController {
 
     @GetMapping
     public Flux<UserResponse> getAllUsers() {
-        return mapper.userModelListToUserResponsList(service.getAll());
+        return mapper.userModelListToUserResponseList(service.getAll());
     }
 }

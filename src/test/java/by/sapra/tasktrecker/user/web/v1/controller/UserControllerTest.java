@@ -38,7 +38,7 @@ class UserControllerTest {
         );
         when(service.getAll()).thenReturn(list);
 
-        when(responseMapper.userModelListToUserResponsList(list))
+        when(responseMapper.userModelListToUserResponseList(list))
                 .thenReturn(expected);
 
         client.get().uri("/api/v1/users")

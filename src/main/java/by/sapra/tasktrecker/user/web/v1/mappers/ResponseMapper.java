@@ -5,5 +5,5 @@ import by.sapra.tasktrecker.user.web.v1.model.UserResponse;
 import reactor.core.publisher.Flux;
 
 public interface ResponseMapper {
-    Flux<UserResponse> userModelListToUserResponsList(Flux<UserModel> models);
+    Flux<UserResponse> userModelListToUserResponseList(Flux<UserModel> models);
 }
