@@ -3,6 +3,7 @@ package by.sapra.tasktrecker.user.web.v1.controller;
 import by.sapra.tasktrecker.user.service.UserService;
 import by.sapra.tasktrecker.user.service.model.UserModel;
 import by.sapra.tasktrecker.user.web.v1.mappers.ResponseMapper;
+import by.sapra.tasktrecker.user.web.v1.model.UpsertUserRequest;
 import by.sapra.tasktrecker.user.web.v1.model.UserResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +64,31 @@ class UserControllerTest {
 
         client.get().uri("/api/v1/users/{id}", id)
                 .exchange().expectStatus().isOk()
+                .expectBody(UserResponse.class)
+                .isEqualTo(expected);
+    }
+
+    @Test
+    void whenCreateNewUser_thenReturnCreationUser() throws Exception {
+        String name = "user name 1";
+        String email = "email1@test.test";
+        UpsertUserRequest request = new UpsertUserRequest(name, email);
+
+        UserModel model2create = new UserModel();
+        when(responseMapper.requestToModel(request))
+                .thenReturn(model2create);
+
+        Mono<UserModel> monoUser = Mono.just(new UserModel());
+        when(service.createNewUser(model2create))
+                .thenReturn(monoUser);
+
+        UserResponse expected = new UserResponse(UUID.randomUUID().toString(), name, email);
+        when(responseMapper.monoModelToMonoResponse(monoUser))
+                .thenReturn(Mono.just(expected));
+
+        client.post().uri("/api/v1/users")
+                .body(Mono.just(request), UpsertUserRequest.class)
+                .exchange().expectStatus().isCreated()
                 .expectBody(UserResponse.class)
                 .isEqualTo(expected);
     }
