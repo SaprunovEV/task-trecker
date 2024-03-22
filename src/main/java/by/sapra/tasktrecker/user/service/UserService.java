@@ -10,4 +10,6 @@ public interface UserService {
     Mono<UserModel> getById(String id);
 
     Mono<UserModel> createNewUser(UserModel model2create);
+
+    Mono<UserModel> updateUser(String id, UserModel model2update);
 }
