@@ -34,4 +34,11 @@ public class UserController {
         return mapper.monoModelToMonoResponse(service.createNewUser(mapper.requestToModel(request)))
                 .map(user -> ResponseEntity.status(CREATED).body(user));
     }
+
+    @PutMapping("/{id}")
+    public Mono<ResponseEntity<UserResponse>> updateUser(@PathVariable String id, @RequestBody UpsertUserRequest request) {
+        return mapper
+                .monoModelToMonoResponse(service.updateUser(id, mapper.requestToModel(request)))
+                .map(ResponseEntity::ok);
+    }
 }

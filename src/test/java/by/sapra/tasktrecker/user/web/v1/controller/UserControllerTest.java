@@ -92,4 +92,30 @@ class UserControllerTest {
                 .expectBody(UserResponse.class)
                 .isEqualTo(expected);
     }
+
+    @Test
+    void whenUpdateUser_thenReturnUpdatedUser() throws Exception {
+        String id = UUID.randomUUID().toString();
+        String name = "user name 1";
+        String email = "email1@test.test";
+        UpsertUserRequest request = new UpsertUserRequest(name, email);
+
+        UserModel model2create = new UserModel();
+        when(responseMapper.requestToModel(request))
+                .thenReturn(model2create);
+
+        Mono<UserModel> monoUser = Mono.just(new UserModel());
+        when(service.updateUser(id, model2create))
+                .thenReturn(monoUser);
+
+        UserResponse expected = new UserResponse(id, name, email);
+        when(responseMapper.monoModelToMonoResponse(monoUser))
+                .thenReturn(Mono.just(expected));
+
+        client.put().uri("/api/v1/users/{id}", id)
+                .body(Mono.just(request), UpsertUserRequest.class)
+                .exchange().expectStatus().isOk()
+                .expectBody(UserResponse.class)
+                .isEqualTo(expected);
+    }
 }
