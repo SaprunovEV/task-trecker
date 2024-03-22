@@ -20,8 +20,8 @@ public class UserController {
     private final UserService service;
 
     @GetMapping
-    public Flux<UserResponse> getAllUsers() {
-        return mapper.userModelListToUserResponseList(service.getAll());
+    public ResponseEntity<Flux<UserResponse>> getAllUsers() {
+        return ResponseEntity.ok(mapper.userModelListToUserResponseList(service.getAll()));
     }
 
     @GetMapping("/{id}")
