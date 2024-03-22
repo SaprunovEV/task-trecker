@@ -41,4 +41,10 @@ public class UserController {
                 .monoModelToMonoResponse(service.updateUser(id, mapper.requestToModel(request)))
                 .map(ResponseEntity::ok);
     }
+
+    @DeleteMapping("/{id}")
+    public Mono<ResponseEntity<Void>> deleteById(@PathVariable String id) {
+        service.deleteById(id);
+        return Mono.just(ResponseEntity.noContent().build());
+    }
 }

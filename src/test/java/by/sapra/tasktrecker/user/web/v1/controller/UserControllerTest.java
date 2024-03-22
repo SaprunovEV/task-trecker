@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 @WebFluxTest(controllers = UserController.class)
@@ -117,5 +117,17 @@ class UserControllerTest {
                 .exchange().expectStatus().isOk()
                 .expectBody(UserResponse.class)
                 .isEqualTo(expected);
+    }
+
+    @Test
+    void whenDeleteById_thenReturnNoContent_andCallMethodOfService() throws Exception {
+        String id = UUID.randomUUID().toString();
+
+        when(service.deleteById(id)).thenReturn(Mono.empty());
+
+        client.delete().uri("/api/v1/users/{id}", id)
+                .exchange().expectStatus().isNoContent();
+
+        verify(service, times(1)).deleteById(id);
     }
 }
