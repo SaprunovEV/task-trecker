@@ -8,4 +8,6 @@ public interface UserService {
     Flux<UserModel> getAll();
 
     Mono<UserModel> getById(String id);
+
+    Mono<UserModel> createNewUser(UserModel model2create);
 }
