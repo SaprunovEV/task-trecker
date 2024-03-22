@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
@@ -46,5 +47,23 @@ class UserControllerTest {
                 .expectStatus().isOk()
                 .expectBodyList(UserResponse.class)
                 .hasSize(3);
+    }
+
+    @Test
+    void whenGetById_thenReturnUserResponseById() throws Exception {
+        String id = UUID.randomUUID().toString();
+        UserResponse expected = new UserResponse(id, "user name 1", "email1@test.test");
+        Mono<UserResponse> expectedMono = Mono.just(expected);
+
+        Mono<UserModel> model = Mono.just(new UserModel(id, "user name 1", "email1@test.test"));
+
+        when(service.getById(id)).thenReturn(model);
+        when(responseMapper.monoModelToMonoResponse(model))
+                .thenReturn(expectedMono);
+
+        client.get().uri("/api/v1/users/{id}", id)
+                .exchange().expectStatus().isOk()
+                .expectBody(UserResponse.class)
+                .isEqualTo(expected);
     }
 }
