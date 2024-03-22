@@ -12,4 +12,6 @@ public interface UserService {
     Mono<UserModel> createNewUser(UserModel model2create);
 
     Mono<UserModel> updateUser(String id, UserModel model2update);
+
+    Mono<Void> deleteById(String id);
 }
