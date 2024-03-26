@@ -17,7 +17,7 @@ public class AbstractDataTest {
     protected TestDbFacade testDbFacade;
 
     @Container
-    static MongoDBContainer container = new MongoDBContainer("mongo:6.0.8")
+    public static MongoDBContainer container = new MongoDBContainer("mongo:6.0.8")
             .withReuse(true);
 
     @DynamicPropertySource
