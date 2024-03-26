@@ -1,7 +1,7 @@
 package by.sapra.tasktrecker.user.web.v1.controller;
 
 import by.sapra.tasktrecker.user.service.UserService;
-import by.sapra.tasktrecker.user.service.model.UserModel;
+import by.sapra.tasktrecker.user.model.UserModel;
 import by.sapra.tasktrecker.user.web.v1.mappers.ResponseMapper;
 import by.sapra.tasktrecker.user.web.v1.model.UpsertUserRequest;
 import by.sapra.tasktrecker.user.web.v1.model.UserResponse;

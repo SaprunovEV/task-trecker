@@ -1,6 +1,6 @@
 package by.sapra.tasktrecker.testUtil;
 
-import by.sapra.tasktrecker.user.service.model.UserModel;
+import by.sapra.tasktrecker.user.model.UserModel;
 
 import java.util.UUID;
 

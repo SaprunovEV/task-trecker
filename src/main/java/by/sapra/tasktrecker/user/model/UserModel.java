@@ -1,4 +1,4 @@
-package by.sapra.tasktrecker.user.service.model;
+package by.sapra.tasktrecker.user.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
