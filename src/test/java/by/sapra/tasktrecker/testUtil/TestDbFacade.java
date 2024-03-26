@@ -1,6 +1,5 @@
 package by.sapra.tasktrecker.testUtil;
 
-import by.sapra.tasktrecker.user.data.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
@@ -17,6 +16,6 @@ public class TestDbFacade {
     }
 
     public void deleteAll() {
-        mongoTemplate.dropCollection(User.class);
+        mongoTemplate.dropCollection("usr");
     }
 }
