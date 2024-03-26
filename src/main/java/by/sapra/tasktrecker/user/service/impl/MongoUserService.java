@@ -1,15 +1,21 @@
 package by.sapra.tasktrecker.user.service.impl;
 
+import by.sapra.tasktrecker.user.model.repo.UserRepository;
 import by.sapra.tasktrecker.user.service.UserService;
-import by.sapra.tasktrecker.user.service.model.UserModel;
+import by.sapra.tasktrecker.user.model.UserModel;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 @Service
+@RequiredArgsConstructor
 public class MongoUserService implements UserService {
+
+    private final UserRepository repository;
+
     @Override
     public Flux<UserModel> getAll() {
-        return null;
+        return repository.findAll();
     }
 
     @Override
