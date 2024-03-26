@@ -1,6 +1,6 @@
 package by.sapra.tasktrecker.user.service;
 
-import by.sapra.tasktrecker.user.service.model.UserModel;
+import by.sapra.tasktrecker.user.model.UserModel;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
