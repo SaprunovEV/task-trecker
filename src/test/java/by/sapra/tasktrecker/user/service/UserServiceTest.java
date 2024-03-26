@@ -80,4 +80,19 @@ class UserServiceTest extends AbstractDataTest {
             assertEquals(list.get(0), actual.block());
         });
     }
+
+    @Test
+    void whenSaveNewUser_thenUserTakeId_andSavedToDatabase() throws Exception {
+        UserModel expected = aUser().build();
+
+        Mono<UserModel> result = service.createNewUser(expected);
+
+        UserModel block = result.block();
+        expected.setId(block.getId());
+        UserModel actual = testDbFacade.find(block.getId(), UserModel.class);
+
+        assertAll(() -> {
+            assertEquals(expected, actual);
+        });
+    }
 }

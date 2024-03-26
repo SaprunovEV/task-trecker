@@ -7,6 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class MongoUserService implements UserService {
@@ -25,7 +28,13 @@ public class MongoUserService implements UserService {
 
     @Override
     public Mono<UserModel> createNewUser(UserModel model2create) {
-        return null;
+        UserModel userToSave = new UserModel();
+
+        userToSave.setName(model2create.getName());
+        userToSave.setEmail(model2create.getEmail());
+        userToSave.setId(UUID.randomUUID().toString());
+
+        return repository.save(userToSave);
     }
 
     @Override
