@@ -20,7 +20,7 @@ public class MongoUserService implements UserService {
 
     @Override
     public Mono<UserModel> getById(String id) {
-        return null;
+        return repository.findById(id);
     }
 
     @Override

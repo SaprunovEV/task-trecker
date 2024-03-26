@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.test.context.ContextConfiguration;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static by.sapra.tasktrecker.testUtil.UserTestDataBuilder.aUser;
@@ -47,6 +49,35 @@ class UserServiceTest extends AbstractDataTest {
         assertAll(() -> {
             assertNotNull(actual);
             assertEquals(0, actual.toStream().count());
+        });
+    }
+
+    @Test
+    void whenFindById_andDatabaseNotFound_thenReturnEmpty() throws Exception {
+        Mono<UserModel> actual = service.getById(UUID.randomUUID().toString());
+
+        assertAll(() -> {
+            assertNotNull(actual);
+            assertNotEquals(Boolean.TRUE, actual.hasElement().block());
+        });
+    }
+
+    @Test
+    void whenGetById_thenReturnUserWithId() throws Exception {
+        List<UserModel> list = List.of(
+                testDbFacade.save(aUser().withName("name1")),
+                testDbFacade.save(aUser()),
+                testDbFacade.save(aUser()),
+                testDbFacade.save(aUser()),
+                testDbFacade.save(aUser()),
+                testDbFacade.save(aUser())
+        );
+
+        Mono<UserModel> actual = service.getById(list.get(0).getId());
+
+        assertAll(() -> {
+            assertNotNull(actual);
+            assertEquals(list.get(0), actual.block());
         });
     }
 }
