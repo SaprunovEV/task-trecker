@@ -13,7 +13,7 @@ public class TestTaskTreckerApplication {
     @Bean
     @ServiceConnection
     MongoDBContainer mongoDbContainer() {
-        return new MongoDBContainer(DockerImageName.parse("mongo:latest"));
+        return new MongoDBContainer(DockerImageName.parse("mongo:6.0.8"));
     }
 
     public static void main(String[] args) {

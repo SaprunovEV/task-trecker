@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: task-trecker
+  data:
+    mongodb:
+      uri: mongodb://root:root@localhost:27017/tasktracker?authSource=admin
