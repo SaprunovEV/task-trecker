@@ -51,6 +51,7 @@ public class MongoUserService implements UserService {
 
     @Override
     public Mono<Void> deleteById(String id) {
-        return null;
+        repository.deleteById(id).block();
+        return Mono.empty();
     }
 }
