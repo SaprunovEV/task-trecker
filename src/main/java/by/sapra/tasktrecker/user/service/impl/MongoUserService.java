@@ -1,8 +1,8 @@
 package by.sapra.tasktrecker.user.service.impl;
 
+import by.sapra.tasktrecker.user.model.UserModel;
 import by.sapra.tasktrecker.user.model.repo.UserRepository;
 import by.sapra.tasktrecker.user.service.UserService;
-import by.sapra.tasktrecker.user.model.UserModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -39,7 +39,14 @@ public class MongoUserService implements UserService {
 
     @Override
     public Mono<UserModel> updateUser(String id, UserModel model2update) {
-        return null;
+        return repository.findById(id).flatMap(user -> {
+            if (model2update.getName() != null || model2update.getName().equals(user.getName()))
+                user.setName(model2update.getName());
+            if (model2update.getEmail() != null || model2update.getEmail().equals(user.getEmail()))
+                user.setEmail(model2update.getEmail());
+
+            return repository.save(user);
+        });
     }
 
     @Override

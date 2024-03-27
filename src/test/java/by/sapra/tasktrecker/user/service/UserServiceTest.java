@@ -91,8 +91,35 @@ class UserServiceTest extends AbstractDataTest {
         expected.setId(block.getId());
         UserModel actual = testDbFacade.find(block.getId(), UserModel.class);
 
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void whenUpdateUser_thenReturnUpdatedUser_andDatabaseHaveNewData() throws Exception {
+        UserModel savedUser = testDbFacade.save(aUser());
+
+        UserModel user2update = aUser().withName("new_name").withEmail("new_email").build();
+
+        UserModel actual = service.updateUser(savedUser.getId(), user2update).block();
+
         assertAll(() -> {
-            assertEquals(expected, actual);
+            assertNotNull(actual);
+            assertEquals(actual.getId(), savedUser.getId());
+            assertEquals(user2update.getName(), actual.getName());
+            assertEquals(user2update.getEmail(), actual.getEmail());
+            UserModel databaseUser = testDbFacade.find(savedUser.getId(), UserModel.class);
+            assertNotNull(databaseUser);
+            assertEquals(actual, databaseUser);
+        });
+    }
+
+    @Test
+    void whenUpdateNonExistentUser_thenThrowError() throws Exception {
+        Mono<UserModel> actual = service.updateUser(UUID.randomUUID().toString(), aUser().build());
+
+        assertAll(() -> {
+            assertNotNull(actual);
+            assertFalse(actual.hasElement().block().booleanValue());
         });
     }
 }
