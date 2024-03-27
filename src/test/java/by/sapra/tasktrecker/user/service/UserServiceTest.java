@@ -127,7 +127,7 @@ class UserServiceTest extends AbstractDataTest {
     void whenDeleteById_thenUserDeletedFromDatabase() throws Exception {
         UserModel savedUser = testDbFacade.save(aUser().withName("delete_user"));
 
-        service.deleteById(savedUser.getId());
+        service.deleteById(savedUser.getId()).block();
 
         assertNull(testDbFacade.find(savedUser.getId(), UserModel.class));
     }

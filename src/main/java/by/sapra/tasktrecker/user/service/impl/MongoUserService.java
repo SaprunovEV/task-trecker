@@ -40,9 +40,9 @@ public class MongoUserService implements UserService {
     @Override
     public Mono<UserModel> updateUser(String id, UserModel model2update) {
         return repository.findById(id).flatMap(user -> {
-            if (model2update.getName() != null || model2update.getName().equals(user.getName()))
+            if (model2update.getName() != null && !model2update.getName().equals(user.getName()))
                 user.setName(model2update.getName());
-            if (model2update.getEmail() != null || model2update.getEmail().equals(user.getEmail()))
+            if (model2update.getEmail() != null && !model2update.getEmail().equals(user.getEmail()))
                 user.setEmail(model2update.getEmail());
 
             return repository.save(user);
@@ -51,7 +51,6 @@ public class MongoUserService implements UserService {
 
     @Override
     public Mono<Void> deleteById(String id) {
-        repository.deleteById(id).block();
-        return Mono.empty();
+        return repository.deleteById(id);
     }
 }
