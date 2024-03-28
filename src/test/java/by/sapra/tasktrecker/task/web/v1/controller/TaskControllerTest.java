@@ -58,6 +58,20 @@ class TaskControllerTest {
         verify(mapper, times(1)).fluxTaskModelToFluxTaskResponse(fluxTaskModel);
     }
 
+    @Test
+    void whenGetAll_andDatabaseIsEmpty_thenReturnEmptyList() throws Exception {
+        when(mapper.fluxTaskModelToFluxTaskResponse(any()))
+                .thenReturn(Flux.empty());
+
+        client.get().uri(uri)
+                .exchange().expectStatus().isOk()
+                .expectBodyList(TaskResponse.class)
+                .hasSize(0);
+
+        verify(service, times(1)).getAll();
+        verify(mapper, times(1)).fluxTaskModelToFluxTaskResponse(any());
+    }
+
     private static TaskResponse createTask(UserResponseTestDataBuilder userBuilder) {
         return aTaskResponse()
                 .withAuthor(userBuilder)
