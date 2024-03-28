@@ -10,4 +10,6 @@ public interface TaskService {
     Mono<TaskModel> getById(String id);
 
     Mono<TaskModel> saveNewTask(Mono<TaskModel> model);
+
+    Mono<TaskModel> updateTask(String taskId, Mono<TaskModel> task2update);
 }
