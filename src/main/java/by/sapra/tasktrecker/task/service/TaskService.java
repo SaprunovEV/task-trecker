@@ -8,4 +8,6 @@ public interface TaskService {
     Flux<TaskModel> getAll();
 
     Mono<TaskModel> getById(String id);
+
+    Mono<TaskModel> saveNewTask(Mono<TaskModel> model);
 }
