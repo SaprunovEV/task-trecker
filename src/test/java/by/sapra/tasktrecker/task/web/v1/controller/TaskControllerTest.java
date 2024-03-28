@@ -4,6 +4,10 @@ import by.sapra.tasktrecker.task.model.TaskModel;
 import by.sapra.tasktrecker.task.service.TaskService;
 import by.sapra.tasktrecker.task.web.v1.mapper.TaskResponseMapper;
 import by.sapra.tasktrecker.task.web.v1.model.TaskResponse;
+import by.sapra.tasktrecker.task.web.v1.model.TaskUploadRequest;
+import by.sapra.tasktrecker.task.web.v1.model.enums.TaskStatus;
+import by.sapra.tasktrecker.testUtil.TaskModelTestDataBuilder;
+import by.sapra.tasktrecker.testUtil.TaskResponseTestDataBuilder;
 import by.sapra.tasktrecker.testUtil.UserResponseTestDataBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,6 +96,36 @@ class TaskControllerTest {
 
         verify(service, times(1)).getById(id);
         verify(mapper, times(1)).monoTaskModelToMonoTaskResponse(monoModel);
+    }
+
+    @Test
+    void whenCreateNewTask_thenReturnCreatedTask() throws Exception {
+        TaskUploadRequest request = new TaskUploadRequest(
+                "name",
+                "description",
+                TaskStatus.TODO,
+                "author_id",
+                "assigneeId"
+        );
+
+        Mono<TaskModel> model = Mono.just(aTask().build());
+        when(mapper.monoRequestToModel(request))
+                .thenReturn(model);
+
+        Mono<TaskModel> model2response = Mono.just(aTask().build());
+        when(service.saveNewTask(model))
+                .thenReturn(model2response);
+
+        TaskResponse expected = aTaskResponse().build();
+        Mono<TaskResponse> response = Mono.just(expected);
+        when(mapper.monoTaskModelToMonoTaskResponse(model2response))
+                .thenReturn(response);
+
+        client.post().uri(uri)
+                .body(Mono.just(request), TaskUploadRequest.class)
+                .exchange().expectStatus().isCreated()
+                .expectBody(TaskResponse.class)
+                .isEqualTo(expected);
     }
 
     private static TaskResponse createTask(UserResponseTestDataBuilder userBuilder) {

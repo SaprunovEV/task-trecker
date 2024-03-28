@@ -3,14 +3,15 @@ package by.sapra.tasktrecker.task.web.v1.controller;
 import by.sapra.tasktrecker.task.service.TaskService;
 import by.sapra.tasktrecker.task.web.v1.mapper.TaskResponseMapper;
 import by.sapra.tasktrecker.task.web.v1.model.TaskResponse;
+import by.sapra.tasktrecker.task.web.v1.model.TaskUploadRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import static org.springframework.http.HttpStatus.CREATED;
 
 @RestController
 @RequestMapping("/api/v1/tasks")
@@ -28,5 +29,11 @@ public class TaskController {
     public Mono<ResponseEntity<TaskResponse>> handleFindById(@PathVariable String id) {
         return mapper.monoTaskModelToMonoTaskResponse(service.getById(id))
                 .map(ResponseEntity::ok);
+    }
+
+    @PostMapping
+    public Mono<ResponseEntity<TaskResponse>> handleCreationTask(@RequestBody TaskUploadRequest request) {
+        return mapper.monoTaskModelToMonoTaskResponse(service.saveNewTask(mapper.monoRequestToModel(request)))
+                .map(task -> ResponseEntity.status(CREATED).body(task));
     }
 }
