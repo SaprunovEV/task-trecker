@@ -148,6 +148,28 @@ class TaskControllerTest {
         verify(mapper, times(1)).monoTaskModelToMonoTaskResponse(task2response);
     }
 
+    @Test
+    void whenAddObservers_thenReturnTaskWithNewObservers() throws Exception {
+        String taskId = UUID.randomUUID().toString();
+        String observerId = UUID.randomUUID().toString();
+
+        Mono<TaskModel> task2response = Mono.just(aTask().withId(taskId).build());
+        when(service.addObserver(taskId, observerId))
+                .thenReturn(task2response);
+
+        TaskResponse expected = aTaskResponse().withId(taskId).build();
+        when(mapper.monoTaskModelToMonoTaskResponse(task2response))
+                .thenReturn(Mono.just(expected));
+
+        client.put().uri(uri + "/{taskId}/observers/add/{observerId}", taskId, observerId)
+                .exchange().expectStatus().isOk()
+                .expectBody(TaskResponse.class)
+                .isEqualTo(expected);
+
+        verify(service, times(1)).addObserver(taskId, observerId);
+        verify(mapper, times(1)).monoTaskModelToMonoTaskResponse(task2response);
+    }
+
     private static TaskResponse createTask(UserResponseTestDataBuilder userBuilder) {
         return aTaskResponse()
                 .withAuthor(userBuilder)
