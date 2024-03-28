@@ -36,4 +36,10 @@ public class TaskController {
         return mapper.monoTaskModelToMonoTaskResponse(service.saveNewTask(mapper.monoRequestToModel(request)))
                 .map(task -> ResponseEntity.status(CREATED).body(task));
     }
+
+    @PutMapping("/{id}")
+    public Mono<ResponseEntity<TaskResponse>> handleUpdateTask(@PathVariable String id, @RequestBody TaskUploadRequest request) {
+        return mapper.monoTaskModelToMonoTaskResponse(service.updateTask(id, mapper.monoRequestToModel(request)))
+                .map(ResponseEntity::ok);
+    }
 }

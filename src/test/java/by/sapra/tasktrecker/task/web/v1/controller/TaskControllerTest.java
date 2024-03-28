@@ -120,6 +120,34 @@ class TaskControllerTest {
                 .isEqualTo(expected);
     }
 
+    @Test
+    void whenUpdateTask_thenReturnUpdatedTask() throws Exception {
+        TaskUploadRequest request = aRequest().build();
+        String taskId = UUID.randomUUID().toString();
+
+        Mono<TaskModel> task2update = Mono.just(aTask().build());
+        when(mapper.monoRequestToModel(request))
+                .thenReturn(task2update);
+
+        Mono<TaskModel> task2response = Mono.just(aTask().withId(taskId).build());
+        when(service.updateTask(taskId, task2update))
+                .thenReturn(task2response);
+
+        TaskResponse expected = aTaskResponse().withId(taskId).build();
+        when(mapper.monoTaskModelToMonoTaskResponse(task2response))
+                .thenReturn(Mono.just(expected));
+
+        client.put().uri(uri + "/{id}", taskId)
+                .body(Mono.just(request), TaskUploadRequest.class)
+                .exchange().expectStatus().isOk()
+                .expectBody(TaskResponse.class)
+                .isEqualTo(expected);
+
+        verify(mapper, times(1)).monoRequestToModel(request);
+        verify(service, times(1)).updateTask(taskId, task2update);
+        verify(mapper, times(1)).monoTaskModelToMonoTaskResponse(task2response);
+    }
+
     private static TaskResponse createTask(UserResponseTestDataBuilder userBuilder) {
         return aTaskResponse()
                 .withAuthor(userBuilder)
