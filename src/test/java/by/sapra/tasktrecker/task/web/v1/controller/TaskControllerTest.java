@@ -11,8 +11,10 @@ import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.UUID;
 
 import static by.sapra.tasktrecker.testUtil.TaskModelTestDataBuilder.aTask;
 import static by.sapra.tasktrecker.testUtil.TaskResponseTestDataBuilder.aTaskResponse;
@@ -70,6 +72,26 @@ class TaskControllerTest {
 
         verify(service, times(1)).getAll();
         verify(mapper, times(1)).fluxTaskModelToFluxTaskResponse(any());
+    }
+
+    @Test
+    void whenGetById_thenReturnTaskById() throws Exception {
+        String id = UUID.randomUUID().toString();
+        TaskResponse response = aTaskResponse().withId(id).build();
+
+        Mono<TaskModel> monoModel = Mono.just(aTask().withId(id).build());
+        when(service.getById(id)).thenReturn(monoModel);
+
+        when(mapper.monoTaskModelToMonoTaskResponse(monoModel))
+                .thenReturn(Mono.just(response));
+
+        client.get().uri(uri + "/{id}", id)
+                .exchange().expectStatus().isOk()
+                .expectBody(TaskResponse.class)
+                .isEqualTo(response);
+
+        verify(service, times(1)).getById(id);
+        verify(mapper, times(1)).monoTaskModelToMonoTaskResponse(monoModel);
     }
 
     private static TaskResponse createTask(UserResponseTestDataBuilder userBuilder) {
