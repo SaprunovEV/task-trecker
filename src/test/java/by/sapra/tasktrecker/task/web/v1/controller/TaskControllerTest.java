@@ -5,9 +5,6 @@ import by.sapra.tasktrecker.task.service.TaskService;
 import by.sapra.tasktrecker.task.web.v1.mapper.TaskResponseMapper;
 import by.sapra.tasktrecker.task.web.v1.model.TaskResponse;
 import by.sapra.tasktrecker.task.web.v1.model.TaskUploadRequest;
-import by.sapra.tasktrecker.task.web.v1.model.enums.TaskStatus;
-import by.sapra.tasktrecker.testUtil.TaskModelTestDataBuilder;
-import by.sapra.tasktrecker.testUtil.TaskResponseTestDataBuilder;
 import by.sapra.tasktrecker.testUtil.UserResponseTestDataBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +19,7 @@ import java.util.UUID;
 
 import static by.sapra.tasktrecker.testUtil.TaskModelTestDataBuilder.aTask;
 import static by.sapra.tasktrecker.testUtil.TaskResponseTestDataBuilder.aTaskResponse;
+import static by.sapra.tasktrecker.testUtil.TaskUploadRequestTestDataBuilder.aRequest;
 import static org.mockito.Mockito.*;
 
 @WebFluxTest(controllers = TaskController.class)
@@ -100,13 +98,7 @@ class TaskControllerTest {
 
     @Test
     void whenCreateNewTask_thenReturnCreatedTask() throws Exception {
-        TaskUploadRequest request = new TaskUploadRequest(
-                "name",
-                "description",
-                TaskStatus.TODO,
-                "author_id",
-                "assigneeId"
-        );
+        TaskUploadRequest request = aRequest().build();
 
         Mono<TaskModel> model = Mono.just(aTask().build());
         when(mapper.monoRequestToModel(request))
