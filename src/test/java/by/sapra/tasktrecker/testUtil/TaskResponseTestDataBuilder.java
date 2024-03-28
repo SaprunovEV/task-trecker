@@ -1,6 +1,7 @@
 package by.sapra.tasktrecker.testUtil;
 
 import by.sapra.tasktrecker.task.web.v1.model.TaskResponse;
+import by.sapra.tasktrecker.task.web.v1.model.enums.TaskStatus;
 import by.sapra.tasktrecker.user.web.v1.model.UserResponse;
 
 import java.time.Instant;
@@ -18,11 +19,12 @@ public class TaskResponseTestDataBuilder implements TestDataBuilder<TaskResponse
     private TestDataBuilder<UserResponse> author = UserResponse::new;
     private TestDataBuilder<UserResponse> assignee = UserResponse::new;
     private List<TestDataBuilder<UserResponse>> observers = new ArrayList<>();
+    private TaskStatus taskStatus = TaskStatus.TODO;
 
     private TaskResponseTestDataBuilder() {
     }
 
-    private TaskResponseTestDataBuilder(String id, String name, String description, Instant createAt, Instant updateAt, TestDataBuilder<UserResponse> author, TestDataBuilder<UserResponse> assignee, List<TestDataBuilder<UserResponse>> observer4s) {
+    private TaskResponseTestDataBuilder(String id, String name, String description, Instant createAt, Instant updateAt, TestDataBuilder<UserResponse> author, TestDataBuilder<UserResponse> assignee, List<TestDataBuilder<UserResponse>> observer4s, TaskStatus taskStatus) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -31,6 +33,7 @@ public class TaskResponseTestDataBuilder implements TestDataBuilder<TaskResponse
         this.author = author;
         this.assignee = assignee;
         this.observers = observer4s;
+        this.taskStatus = taskStatus;
     }
 
     public static TaskResponseTestDataBuilder aTaskResponse() {
@@ -46,7 +49,8 @@ public class TaskResponseTestDataBuilder implements TestDataBuilder<TaskResponse
                 updateAt,
                 author,
                 assignee,
-                observers
+                observers,
+                taskStatus
         );
     }
 
@@ -59,7 +63,8 @@ public class TaskResponseTestDataBuilder implements TestDataBuilder<TaskResponse
                 updateAt,
                 author,
                 assignee,
-                observers
+                observers,
+                taskStatus
         );
     }
 
@@ -72,7 +77,8 @@ public class TaskResponseTestDataBuilder implements TestDataBuilder<TaskResponse
                 updateAt,
                 author,
                 assignee,
-                observers
+                observers,
+                taskStatus
         );
     }
 
@@ -85,7 +91,8 @@ public class TaskResponseTestDataBuilder implements TestDataBuilder<TaskResponse
                 updateAt,
                 author,
                 assignee,
-                observers
+                observers,
+                taskStatus
         );
     }
 
@@ -98,7 +105,8 @@ public class TaskResponseTestDataBuilder implements TestDataBuilder<TaskResponse
                 updateAt,
                 author,
                 assignee,
-                observers
+                observers,
+                taskStatus
         );
     }
 
@@ -111,7 +119,8 @@ public class TaskResponseTestDataBuilder implements TestDataBuilder<TaskResponse
                 updateAt,
                 author,
                 assignee,
-                observers
+                observers,
+                taskStatus
         );
     }
 
@@ -124,7 +133,8 @@ public class TaskResponseTestDataBuilder implements TestDataBuilder<TaskResponse
                 updateAt,
                 author,
                 assignee,
-                observers
+                observers,
+                taskStatus
         );
     }
 
@@ -137,13 +147,15 @@ public class TaskResponseTestDataBuilder implements TestDataBuilder<TaskResponse
                 updateAt,
                 author,
                 assignee,
-                observers
+                observers,
+                taskStatus
         );
     }
 
     @Override
     public TaskResponse build() {
         TaskResponse result = new TaskResponse();
+        result.setTaskStatus(taskStatus);
         result.setId(id);
         result.setName(name);
         result.setDescription(description);
