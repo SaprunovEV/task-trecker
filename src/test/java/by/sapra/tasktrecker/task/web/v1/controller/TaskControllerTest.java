@@ -170,6 +170,18 @@ class TaskControllerTest {
         verify(mapper, times(1)).monoTaskModelToMonoTaskResponse(task2response);
     }
 
+    @Test
+    void whenDeleteById_thenReturnNoContent() throws Exception {
+        String id = UUID.randomUUID().toString();
+
+        when(service.deleteById(id)).thenReturn(Mono.empty());
+
+        client.delete().uri(uri + "/{id}", id)
+                .exchange().expectStatus().isNoContent();
+
+        verify(service, times(1)).deleteById(id);
+    }
+
     private static TaskResponse createTask(UserResponseTestDataBuilder userBuilder) {
         return aTaskResponse()
                 .withAuthor(userBuilder)

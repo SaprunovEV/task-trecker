@@ -46,4 +46,9 @@ public class TaskController {
     public Mono<ResponseEntity<TaskResponse>> handleAddObserver(@PathVariable String taskId, @PathVariable String observerId)  {
         return mapper.monoTaskModelToMonoTaskResponse(service.addObserver(taskId, observerId)).map(ResponseEntity::ok);
     }
+
+    @DeleteMapping("/{id}")
+    public Mono<ResponseEntity<Void>> handleDeleteById(@PathVariable String id) {
+        return service.deleteById(id).then(Mono.just(ResponseEntity.noContent().build()));
+    }
 }
