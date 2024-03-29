@@ -152,7 +152,7 @@ public class TaskModelTestDataBuilder implements TestDataBuilder<TaskModel> {
         result.setUpdateAt(updateAt);
         UserModel author = this.author.build();
         result.setAuthor(author);
-        result.setAssigneeId(author.getId());
+        result.setAuthorId(author.getId());
         UserModel assignee = this.assignee.build();
         result.setAssignee(assignee);
         result.setAssigneeId(assignee.getId());
