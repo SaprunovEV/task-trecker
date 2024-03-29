@@ -15,7 +15,21 @@ public class TestDbFacade {
         return  mongoTemplate.findById(id, entity);
     }
 
+    public <T> TestDataBuilder<T> persistedOnce(TestDataBuilder<T> builder) {
+        return new TestDataBuilder<T>() {
+            T entity;
+            @Override
+            public T build() {
+                if (entity == null)
+                 return save(builder);
+
+                return entity;
+            }
+        };
+    }
+
     public void deleteAll() {
         mongoTemplate.dropCollection("usr");
+        mongoTemplate.dropCollection("tsk");
     }
 }
