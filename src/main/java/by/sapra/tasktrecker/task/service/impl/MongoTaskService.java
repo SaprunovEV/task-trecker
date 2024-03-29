@@ -28,19 +28,7 @@ public class MongoTaskService implements TaskService {
     public Mono<TaskModel> getById(String id) {
         return repository.findById(id).flatMap(task -> {
             UserLinks userLinks = storage.getUserLinks(task);
-            return Mono.zip(
-                    Mono.just(task),
-                    userLinks.getAuthor(),
-                    userLinks.getAssignee(),
-                    Mono.zip(userLinks.getObservers(), (items) -> Arrays.stream(items).map(item -> (UserModel) item).collect(Collectors.toSet()))
-            ).map(tuple4 -> {
-                TaskModel result = tuple4.getT1();
-                result.setAuthor(tuple4.getT2());
-                result.setAssignee(tuple4.getT3());
-                result.setObservers(tuple4.getT4());
-
-                return result;
-            });
+            return zipTaskWithLinks(task, userLinks);
         });
     }
 
@@ -62,5 +50,21 @@ public class MongoTaskService implements TaskService {
     @Override
     public Mono<Void> deleteById(String id) {
         return null;
+    }
+
+    private static Mono<TaskModel> zipTaskWithLinks(TaskModel task, UserLinks userLinks) {
+        return Mono.zip(
+                Mono.just(task),
+                userLinks.getAuthor(),
+                userLinks.getAssignee(),
+                Mono.zip(userLinks.getObservers(), (items) -> Arrays.stream(items).map(item -> (UserModel) item).collect(Collectors.toSet()))
+        ).map(tuple4 -> {
+            TaskModel result = tuple4.getT1();
+            result.setAuthor(tuple4.getT2());
+            result.setAssignee(tuple4.getT3());
+            result.setObservers(tuple4.getT4());
+
+            return result;
+        });
     }
 }
