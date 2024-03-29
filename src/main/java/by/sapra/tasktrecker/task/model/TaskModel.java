@@ -3,6 +3,7 @@ package by.sapra.tasktrecker.task.model;
 import by.sapra.tasktrecker.user.model.UserModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.ReadOnlyProperty;
@@ -20,7 +21,9 @@ public class TaskModel {
     private String id;
     private String name;
     private String description;
+    @EqualsAndHashCode.Exclude
     private Instant createAt;
+    @EqualsAndHashCode.Exclude
     private Instant updateAt;
     private String authorId;
     private String assigneeId;
