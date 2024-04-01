@@ -100,7 +100,7 @@ class TaskControllerTest {
     void whenCreateNewTask_thenReturnCreatedTask() throws Exception {
         TaskUploadRequest request = aRequest().build();
 
-        Mono<TaskModel> model = Mono.just(aTask().build());
+        TaskModel model = aTask().build();
         when(mapper.monoRequestToModel(request))
                 .thenReturn(model);
 
@@ -125,7 +125,7 @@ class TaskControllerTest {
         TaskUploadRequest request = aRequest().build();
         String taskId = UUID.randomUUID().toString();
 
-        Mono<TaskModel> task2update = Mono.just(aTask().build());
+        TaskModel task2update = aTask().build();
         when(mapper.monoRequestToModel(request))
                 .thenReturn(task2update);
 

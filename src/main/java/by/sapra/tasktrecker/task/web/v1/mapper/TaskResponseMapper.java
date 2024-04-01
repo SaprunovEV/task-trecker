@@ -11,5 +11,5 @@ public interface TaskResponseMapper {
 
     Mono<TaskResponse> monoTaskModelToMonoTaskResponse(Mono<TaskModel> model);
 
-    Mono<TaskModel> monoRequestToModel(TaskUploadRequest request);
+    TaskModel monoRequestToModel(TaskUploadRequest request);
 }
