@@ -20,7 +20,7 @@ import static by.sapra.tasktrecker.testUtil.TaskModelTestDataBuilder.aTask;
 import static by.sapra.tasktrecker.testUtil.UserTestDataBuilder.aUser;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @DataMongoTest
 @ContextConfiguration(classes = TaskServiceConf.class)
@@ -88,6 +88,33 @@ class TaskServiceTest extends AbstractDataTest {
             assertNotNull(actual);
             assertNull(actual.getAssignee());
         });
+    }
+
+    @Test
+    void whenGetAll_thenReturnAllTasks() throws Exception {
+        TestDataBuilder<UserModel> author1 = createAuthor();
+        TestDataBuilder<UserModel> assignee1 = createAssignee();
+        List<TestDataBuilder<UserModel>> observers1 = createObservers();
+
+        List<TaskModel> expected = List.of(
+                saveTask(author1, assignee1, observers1),
+                saveTask(author1, assignee1, observers1),
+                saveTask(author1, assignee1, observers1),
+                saveTask(author1, assignee1, observers1)
+        );
+
+        UserLinks links = createLinks(author1, assignee1, observers1);
+        when(taskUserStorage.getUserLinks(any()))
+                .thenReturn(links);
+
+        List<TaskModel> actual = service.getAll().collectList().block();
+
+        assertAll(() -> {
+            assertNotNull(actual);
+            assertEquals(expected.size(), actual.size());
+        });
+
+        verify(taskUserStorage, times(expected.size())).getUserLinks(any());
     }
 
     private TestDataBuilder<UserModel> createAuthor() {

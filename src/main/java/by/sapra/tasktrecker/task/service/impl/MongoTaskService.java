@@ -10,8 +10,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple4;
 
 import java.util.Arrays;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,7 +23,23 @@ public class MongoTaskService implements TaskService {
     private final TaskUserStorage storage;
     @Override
     public Flux<TaskModel> getAll() {
-        return null;
+        return repository.findAll().flatMap(task -> {
+            UserLinks userLinks = storage.getUserLinks(task);
+            return Flux.zip(
+                    Flux.just(task),
+                    userLinks.getAuthor().defaultIfEmpty(new UserModel()).flux(),
+                    userLinks.getAssignee().defaultIfEmpty(new UserModel()).flux(),
+                    Flux.zip(userLinks.getObservers(), (items) -> Arrays.stream(items).map((item) -> (UserModel) item).collect(Collectors.toSet()))
+            ).map(MongoTaskService::getTaskModel);
+        });
+    }
+
+    private static TaskModel getTaskModel(Tuple4<TaskModel, UserModel, UserModel, Set<UserModel>> tuple4) {
+        TaskModel result = tuple4.getT1();
+        result.setAuthor(tuple4.getT2().getId() == null ? null : tuple4.getT2());
+        result.setAssignee(tuple4.getT3().getId() == null ? null : tuple4.getT3());
+        result.setObservers(tuple4.getT4().stream().filter(user -> user.getId() != null).collect(Collectors.toSet()));
+        return result;
     }
 
     @Override
@@ -58,13 +76,6 @@ public class MongoTaskService implements TaskService {
                 userLinks.getAuthor().defaultIfEmpty(new UserModel()),
                 userLinks.getAssignee().defaultIfEmpty(new UserModel()),
                 Mono.zip(userLinks.getObservers(), (items) -> Arrays.stream(items).map(item -> (UserModel) item).collect(Collectors.toSet()))
-        ).map(tuple4 -> {
-            TaskModel result = tuple4.getT1();
-            result.setAuthor(tuple4.getT2().getId() == null ? null : tuple4.getT2());
-            result.setAssignee(tuple4.getT3().getId() == null ? null : tuple4.getT3());
-            result.setObservers(tuple4.getT4().stream().filter(user -> user.getId() != null).collect(Collectors.toSet()));
-
-            return result;
-        });
+        ).map(MongoTaskService::getTaskModel);
     }
 }
