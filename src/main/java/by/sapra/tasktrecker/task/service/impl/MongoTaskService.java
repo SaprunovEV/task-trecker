@@ -62,7 +62,7 @@ public class MongoTaskService implements TaskService {
             TaskModel result = tuple4.getT1();
             result.setAuthor(tuple4.getT2().getId() == null ? null : tuple4.getT2());
             result.setAssignee(tuple4.getT3().getId() == null ? null : tuple4.getT3());
-            result.setObservers(tuple4.getT4());
+            result.setObservers(tuple4.getT4().stream().filter(user -> user.getId() != null).collect(Collectors.toSet()));
 
             return result;
         });
