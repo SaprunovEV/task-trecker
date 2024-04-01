@@ -56,12 +56,12 @@ public class MongoTaskService implements TaskService {
         return Mono.zip(
                 Mono.just(task),
                 userLinks.getAuthor().defaultIfEmpty(new UserModel()),
-                userLinks.getAssignee(),
+                userLinks.getAssignee().defaultIfEmpty(new UserModel()),
                 Mono.zip(userLinks.getObservers(), (items) -> Arrays.stream(items).map(item -> (UserModel) item).collect(Collectors.toSet()))
         ).map(tuple4 -> {
             TaskModel result = tuple4.getT1();
             result.setAuthor(tuple4.getT2().getId() == null ? null : tuple4.getT2());
-            result.setAssignee(tuple4.getT3());
+            result.setAssignee(tuple4.getT3().getId() == null ? null : tuple4.getT3());
             result.setObservers(tuple4.getT4());
 
             return result;
