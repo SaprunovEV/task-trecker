@@ -70,6 +70,26 @@ class TaskServiceTest extends AbstractDataTest {
         });
     }
 
+    @Test
+    void whenAuthorIsNotExist_thenReturnTaskWithoutAssignee() throws Exception {
+        TestDataBuilder<UserModel> author = createAuthor();
+        TestDataBuilder<UserModel> assignee = aUser();
+        List<TestDataBuilder<UserModel>> observers = createObservers();
+
+        TaskModel expected = saveTask(author, assignee, observers);
+
+        UserLinks links = createLinks(author, () -> null, observers);
+        when(taskUserStorage.getUserLinks(any()))
+                .thenReturn(links);
+
+        TaskModel actual = service.getById(expected.getId()).block();
+
+        assertAll(() -> {
+            assertNotNull(actual);
+            assertNull(actual.getAssignee());
+        });
+    }
+
     private TestDataBuilder<UserModel> createAuthor() {
         return testDbFacade.persistedOnce(aUser());
     }
@@ -98,9 +118,10 @@ class TaskServiceTest extends AbstractDataTest {
 
     private static UserLinks createLinks(TestDataBuilder<UserModel> author, TestDataBuilder<UserModel> assignee, List<TestDataBuilder<UserModel>> observers) {
         UserModel authorToSave = author.build();
+        UserModel assigneeToSave = assignee.build();
         return UserLinks.builder()
                 .author(authorToSave == null ? Mono.empty() : Mono.just(authorToSave))
-                .assignee(Mono.just(assignee.build()))
+                .assignee(assigneeToSave == null ? Mono.empty() : Mono.just(assigneeToSave))
                 .observers(observers.stream().map(TestDataBuilder::build).map(Mono::just).toList())
                 .build();
     }
