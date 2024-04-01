@@ -4,6 +4,7 @@ import by.sapra.tasktrecker.config.AbstractDataTest;
 import by.sapra.tasktrecker.task.model.TaskModel;
 import by.sapra.tasktrecker.task.model.UserLinks;
 import by.sapra.tasktrecker.task.model.storade.TaskUserStorage;
+import by.sapra.tasktrecker.testUtil.TaskModelTestDataBuilder;
 import by.sapra.tasktrecker.testUtil.TestDataBuilder;
 import by.sapra.tasktrecker.user.model.UserModel;
 import org.jetbrains.annotations.NotNull;
@@ -115,6 +116,30 @@ class TaskServiceTest extends AbstractDataTest {
         });
 
         verify(taskUserStorage, times(expected.size())).getUserLinks(any());
+    }
+
+    @Test
+    void whenSaveNewTask_thenReturnSavedTask() throws Exception {
+        TestDataBuilder<UserModel> author = createAuthor();
+        TestDataBuilder<UserModel> assignee = createAssignee();
+        List<TestDataBuilder<UserModel>> observers = createObservers();
+
+        TaskModel model = aTask()
+                .withAssignee(assignee)
+                .withAuthor(author)
+                .withObservers(observers)
+                .withId(null)
+                .build();
+
+        String prevId = model.getId();
+
+        Mono<TaskModel> actual = service.saveNewTask(model);
+
+        assertAll(() -> {
+            assertNotNull(actual);
+            assertNotEquals(prevId, actual.block().getId());
+            assertNotNull(testDbFacade.find(actual.block().getId(), TaskModel.class));
+        });
     }
 
     private TestDataBuilder<UserModel> createAuthor() {

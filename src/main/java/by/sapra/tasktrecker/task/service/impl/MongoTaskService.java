@@ -14,6 +14,7 @@ import reactor.util.function.Tuple4;
 
 import java.util.Arrays;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,12 +52,13 @@ public class MongoTaskService implements TaskService {
     }
 
     @Override
-    public Mono<TaskModel> saveNewTask(Mono<TaskModel> model) {
-        return null;
+    public Mono<TaskModel> saveNewTask(TaskModel model) {
+        model.setId(UUID.randomUUID().toString());
+        return repository.save(model);
     }
 
     @Override
-    public Mono<TaskModel> updateTask(String taskId, Mono<TaskModel> task2update) {
+    public Mono<TaskModel> updateTask(String taskId, TaskModel task2update) {
         return null;
     }
 
