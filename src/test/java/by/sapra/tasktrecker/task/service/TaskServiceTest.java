@@ -4,7 +4,6 @@ import by.sapra.tasktrecker.config.AbstractDataTest;
 import by.sapra.tasktrecker.task.model.TaskModel;
 import by.sapra.tasktrecker.task.model.UserLinks;
 import by.sapra.tasktrecker.task.model.storade.TaskUserStorage;
-import by.sapra.tasktrecker.testUtil.TaskModelTestDataBuilder;
 import by.sapra.tasktrecker.testUtil.TestDataBuilder;
 import by.sapra.tasktrecker.user.model.UserModel;
 import org.jetbrains.annotations.NotNull;
