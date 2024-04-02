@@ -141,6 +141,40 @@ class TaskServiceTest extends AbstractDataTest {
         });
     }
 
+    @Test
+    void whenUpdateTaskWithNameAndDescription_thenReturnUpdatedTask() throws Exception {
+        TestDataBuilder<UserModel> author = createAuthor();
+        TestDataBuilder<UserModel> assignee = createAssignee();
+        List<TestDataBuilder<UserModel>> observers = createObservers();
+
+        TaskModel savedModel = saveTask(author, assignee, observers);
+        String id2update = savedModel.getId();
+
+        TaskModel model2update = aTask()
+                .withObservers(observers)
+                .withAuthor(author)
+                .withAssignee(assignee)
+                .withName("new_name")
+                .withDescription("new_description")
+                .build();
+
+        Mono<TaskModel> actual = service.updateTask(id2update, model2update);
+
+        assertAll(() -> {
+            assertNotNull(actual);
+            TaskModel task = actual.block();
+            assertTaskModel(id2update, model2update, task, "returned task");
+            task = testDbFacade.find(id2update, TaskModel.class);
+            assertTaskModel(id2update, model2update, task, "database task");
+        });
+    }
+
+    private static void assertTaskModel(String id2update, TaskModel model2update, TaskModel task, String message) {
+        assertEquals(model2update.getName(), task.getName(), message);
+        assertEquals(id2update, task.getId(), message);
+        assertEquals(model2update.getDescription(), task.getDescription(), message);
+    }
+
     private TestDataBuilder<UserModel> createAuthor() {
         return testDbFacade.persistedOnce(aUser());
     }

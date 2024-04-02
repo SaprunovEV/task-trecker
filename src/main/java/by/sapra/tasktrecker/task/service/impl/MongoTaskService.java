@@ -59,7 +59,13 @@ public class MongoTaskService implements TaskService {
 
     @Override
     public Mono<TaskModel> updateTask(String taskId, TaskModel task2update) {
-        return null;
+        return repository.findById(taskId).flatMap(task -> {
+            if (task2update.getDescription() != null) task.setDescription(task2update.getDescription());
+
+            if (task2update.getName() != null) task.setName(task2update.getName());
+
+            return repository.save(task);
+        });
     }
 
     @Override
