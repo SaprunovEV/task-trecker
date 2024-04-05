@@ -7,6 +7,8 @@ import by.sapra.tasktrecker.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+
 @Component
 @RequiredArgsConstructor
 public class TaskUserStorageImpl implements TaskUserStorage {
@@ -16,7 +18,8 @@ public class TaskUserStorageImpl implements TaskUserStorage {
         return UserLinks.builder()
                 .author(service.getById(task.getAuthorId()))
                 .assignee(service.getById(task.getAssigneeId()))
-                .observers(task.getObserverIds().stream().map(service::getById).toList()
+                .observers( task.getObserverIds() == null ? new ArrayList<>() :
+                        task.getObserverIds().stream().map(service::getById).toList()
                         .stream().map(mono -> mono.defaultIfEmpty(new UserModel())).toList())
                 .build();
     }

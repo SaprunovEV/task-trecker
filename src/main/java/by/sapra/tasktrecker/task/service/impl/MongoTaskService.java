@@ -13,9 +13,7 @@ import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple4;
 
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,12 +25,22 @@ public class MongoTaskService implements TaskService {
     public Flux<TaskModel> getAll() {
         return repository.findAll().flatMap(task -> {
             UserLinks userLinks = storage.getUserLinks(task);
+            Flux<List<UserModel>> zip = Flux.zip(userLinks.getObservers(), (items) -> Arrays.stream(items).map((item) -> (UserModel) item).collect(Collectors.toList()));
             return Flux.zip(
+
                     Flux.just(task),
                     userLinks.getAuthor().defaultIfEmpty(new UserModel()).flux(),
                     userLinks.getAssignee().defaultIfEmpty(new UserModel()).flux(),
-                    Flux.zip(userLinks.getObservers(), (items) -> Arrays.stream(items).map((item) -> (UserModel) item).collect(Collectors.toSet()))
-            ).map(MongoTaskService::getTaskModel);
+                    !userLinks.getObservers().isEmpty() ?
+                            zip :
+                            Flux.just(new ArrayList<UserModel>())
+            ).flatMap(tuple4 -> {
+                TaskModel result = tuple4.getT1();
+                result.setAuthor(tuple4.getT2().getId() == null ? null : tuple4.getT2());
+                result.setAssignee(tuple4.getT3().getId() == null ? null : tuple4.getT3());
+                result.setObservers(tuple4.getT4().stream().filter(user -> user.getId() != null).collect(Collectors.toSet()));
+                return Flux.just(result);
+            });
         });
     }
 
@@ -55,7 +63,9 @@ public class MongoTaskService implements TaskService {
     @Override
     public Mono<TaskModel> saveNewTask(TaskModel model) {
         model.setId(UUID.randomUUID().toString());
-        return repository.save(model).flatMap(task2save -> zipTaskWithLinks(task2save, storage.getUserLinks(task2save)));
+        model.setUpdateAt(Instant.now());
+        model.setCreateAt(Instant.now());
+        return repository.save(model);
     }
 
     @Override
@@ -75,6 +85,7 @@ public class MongoTaskService implements TaskService {
     @Override
     public Mono<TaskModel> addObserver(String taskId, String observerId) {
         return repository.findById(taskId).flatMap(task -> {
+            if (task.getObserverIds() == null) task.setObserverIds(new HashSet<>());
             task.getObserverIds().add(observerId);
             return zipTaskWithLinks(task, storage.getUserLinks(task));
         });
@@ -86,11 +97,17 @@ public class MongoTaskService implements TaskService {
     }
 
     private static Mono<TaskModel> zipTaskWithLinks(TaskModel task, UserLinks userLinks) {
-        return Mono.zip(
+        Mono<Tuple4<TaskModel, UserModel, UserModel, Set<UserModel>>> zip = Mono.zip(
                 Mono.just(task),
                 userLinks.getAuthor().defaultIfEmpty(new UserModel()),
                 userLinks.getAssignee().defaultIfEmpty(new UserModel()),
-                Mono.zip(userLinks.getObservers(), (items) -> Arrays.stream(items).map(item -> (UserModel) item).collect(Collectors.toSet()))
-        ).map(MongoTaskService::getTaskModel);
+                userLinks.getObservers().isEmpty() ?
+                        Mono.just(new HashSet<UserModel>()) :
+                        Mono.zip(userLinks.getObservers(), (items) -> Arrays.stream(items).map(item -> (UserModel) item).collect(Collectors.toSet()))
+        );
+        return zip.flatMap(tuple4 -> {
+            TaskModel result = getTaskModel(tuple4);
+            return Mono.just(result);
+        });
     }
 }
