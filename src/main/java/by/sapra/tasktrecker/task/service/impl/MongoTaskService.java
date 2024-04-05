@@ -12,6 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple4;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.UUID;
@@ -54,7 +55,7 @@ public class MongoTaskService implements TaskService {
     @Override
     public Mono<TaskModel> saveNewTask(TaskModel model) {
         model.setId(UUID.randomUUID().toString());
-        return repository.save(model);
+        return repository.save(model).flatMap(task2save -> zipTaskWithLinks(task2save, storage.getUserLinks(task2save)));
     }
 
     @Override
@@ -64,7 +65,10 @@ public class MongoTaskService implements TaskService {
 
             if (task2update.getName() != null) task.setName(task2update.getName());
 
-            return repository.save(task);
+            if (task2update.getAssignee() != null) task.setAssigneeId(task2update.getAssigneeId());
+
+            task.setUpdateAt(Instant.now());
+            return repository.save(task).flatMap(task2save -> zipTaskWithLinks(task2save, storage.getUserLinks(task2save)));
         });
     }
 

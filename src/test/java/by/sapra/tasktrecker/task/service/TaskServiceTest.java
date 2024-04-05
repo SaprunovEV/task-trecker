@@ -132,6 +132,9 @@ class TaskServiceTest extends AbstractDataTest {
 
         String prevId = model.getId();
 
+        when(taskUserStorage.getUserLinks(any()))
+                .thenReturn(createLinks(author,assignee, observers));
+
         Mono<TaskModel> actual = service.saveNewTask(model);
 
         assertAll(() -> {
@@ -158,6 +161,41 @@ class TaskServiceTest extends AbstractDataTest {
                 .withDescription("new_description")
                 .build();
 
+        when(taskUserStorage.getUserLinks(any()))
+                .thenReturn(createLinks(author,assignee, observers));
+
+        Mono<TaskModel> actual = service.updateTask(id2update, model2update);
+
+        assertAll(() -> {
+            assertNotNull(actual);
+            TaskModel task = actual.block();
+            assertTaskModel(id2update, model2update, task, "returned task");
+            task = testDbFacade.find(id2update, TaskModel.class);
+            assertTaskModel(id2update, model2update, task, "database task");
+        });
+    }
+
+    @Test
+    void whenUpdateTaskWithNewAssignee_thenReturnUpdatedTask() throws Exception {
+        TestDataBuilder<UserModel> author = createAuthor();
+        TestDataBuilder<UserModel> assignee = createAssignee();
+        List<TestDataBuilder<UserModel>> observers = createObservers();
+
+        TaskModel savedModel = saveTask(author, assignee, observers);
+        String id2update = savedModel.getId();
+
+        TestDataBuilder<UserModel> newAssignee = createAssignee();
+        TaskModel model2update = aTask()
+                .withObservers(observers)
+                .withAuthor(author)
+                .withAssignee(newAssignee)
+                .withName("new_name")
+                .withDescription("new_description")
+                .build();
+
+        when(taskUserStorage.getUserLinks(any()))
+                .thenReturn(createLinks(author,newAssignee, observers));
+
         Mono<TaskModel> actual = service.updateTask(id2update, model2update);
 
         assertAll(() -> {
@@ -173,6 +211,7 @@ class TaskServiceTest extends AbstractDataTest {
         assertEquals(model2update.getName(), task.getName(), message);
         assertEquals(id2update, task.getId(), message);
         assertEquals(model2update.getDescription(), task.getDescription(), message);
+        assertEquals(model2update.getAssigneeId(), task.getAssigneeId());
     }
 
     private TestDataBuilder<UserModel> createAuthor() {
