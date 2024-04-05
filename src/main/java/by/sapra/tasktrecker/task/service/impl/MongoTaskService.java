@@ -74,12 +74,15 @@ public class MongoTaskService implements TaskService {
 
     @Override
     public Mono<TaskModel> addObserver(String taskId, String observerId) {
-        return null;
+        return repository.findById(taskId).flatMap(task -> {
+            task.getObserverIds().add(observerId);
+            return zipTaskWithLinks(task, storage.getUserLinks(task));
+        });
     }
 
     @Override
     public Mono<Void> deleteById(String id) {
-        return null;
+        return repository.deleteById(id);
     }
 
     private static Mono<TaskModel> zipTaskWithLinks(TaskModel task, UserLinks userLinks) {
